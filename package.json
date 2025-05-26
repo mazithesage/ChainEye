@@ -1,0 +1,16 @@
+{
+  "name": "chaineye-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot for ChainEye",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "telegraf": "^4.15.3",
+    "openai": "^4.30.0"
+  }
+} 
