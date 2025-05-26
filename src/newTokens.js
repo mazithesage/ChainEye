@@ -1,49 +1,25 @@
 import fetch from 'node-fetch';
 
-// Supported networks mapping for GeckoTerminal
-const NETWORK_MAP = {
-  ethereum: 'eth',
-  eth: 'eth',
-  bsc: 'bsc',
-  binance: 'bsc',
-  polygon: 'polygon',
-  matic: 'polygon',
-  arbitrum: 'arbitrum',
-  optimism: 'optimism',
-  base: 'base',
-  avalanche: 'avalanche',
-  avax: 'avalanche',
-  fantom: 'fantom',
-  ftm: 'fantom',
-  solana: 'solana',
-  sol: 'solana',
-  // Add more as needed
-};
-
-// Fetch new tokens for a network within the last X hours
-export async function getNewTokens(chain, hours = 6) {
-  const networkKey = NETWORK_MAP[chain.toLowerCase()];
-  if (!networkKey) throw new Error('Unsupported chain');
-  const url = `https://api.geckoterminal.com/api/v2/networks/${networkKey}/pools/newest`;
+// Fetch new tokens from Birdeye for Solana
+export async function getNewTokens(hours = 6, limit = 10) {
+  // Birdeye does not support filtering by hours, so we fetch the latest and filter manually
+  const url = `https://public-api.birdeye.so/public/tokenlist?sort_by=created_at&sort_type=desc&limit=${limit}`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error('Failed to fetch pools from GeckoTerminal');
+  if (!res.ok) throw new Error('Failed to fetch tokens from Birdeye');
   const data = await res.json();
   const now = Date.now();
   const msAgo = hours * 60 * 60 * 1000;
-  // Filter pools created within the timeframe
-  const newTokens = (data.data || []).filter(pool => {
-    const createdAt = pool.attributes?.created_at_ms;
+  // Filter tokens created within the timeframe
+  const newTokens = (data.data || []).filter(token => {
+    const createdAt = token.created_at * 1000; // Birdeye returns seconds
     return createdAt && (now - createdAt) <= msAgo;
   });
-  return newTokens.map(pool => ({
-    name: pool.attributes?.base_token?.name,
-    symbol: pool.attributes?.base_token?.symbol,
-    address: pool.attributes?.base_token?.address,
-    poolAddress: pool.id,
-    createdAt: pool.attributes?.created_at_ms,
-    url: `https://www.geckoterminal.com/${networkKey}/pools/${pool.id}`,
-    priceUsd: pool.attributes?.base_token_price_usd,
-    liquidity: pool.attributes?.reserve_in_usd,
-    chain: networkKey
+  return newTokens.map(token => ({
+    name: token.name,
+    symbol: token.symbol,
+    address: token.address,
+    createdAt: token.created_at * 1000,
+    solscanUrl: `https://solscan.io/token/${token.address}`,
+    birdeyeUrl: `https://birdeye.so/token/${token.address}`
   }));
 } 

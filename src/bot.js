@@ -158,23 +158,23 @@ bot.command('smartmoney', async (ctx) => {
 
 bot.command('newtokens', async (ctx) => {
   const args = ctx.message.text.split(' ').slice(1);
-  const chain = args[0] || 'ethereum';
-  const hours = parseInt(args[1], 10) || 6;
-  await ctx.reply(`Fetching new tokens on ${chain} in the last ${hours} hours...`);
+  const hours = parseInt(args[0], 10) || 6;
+  const limit = 10;
+  await ctx.reply(`Fetching new tokens on Solana in the last ${hours} hours...`);
   try {
-    const tokens = await getNewTokens(chain, hours);
+    const tokens = await getNewTokens(hours, limit);
     if (!tokens.length) {
       await ctx.reply('No new tokens found for your criteria.');
       return;
     }
     userTokenSelection.set(ctx.from.id, tokens);
-    const formatted = tokens.slice(0, 10).map((t, i) =>
-      `${i + 1}. ${t.name} (${t.symbol})\nPrice: $${t.priceUsd}\nLiquidity: $${t.liquidity}\n[View on GeckoTerminal](${t.url})`
+    const formatted = tokens.map((t, i) =>
+      `${i + 1}. ${t.name} (${t.symbol})\n[Birdeye](${t.birdeyeUrl}) | [Solscan](${t.solscanUrl})`
     ).join('\n\n');
-    await ctx.replyWithMarkdownV2(`*New Tokens on ${chain} (last ${hours}h):*\n\n${formatted}`);
+    await ctx.replyWithMarkdownV2(`*New Tokens on Solana (last ${hours}h):*\n\n${formatted}`);
   } catch (err) {
     console.error('Error in /newtokens:', err);
-    await ctx.reply('Failed to fetch new tokens. Please check your chain and try again.');
+    await ctx.reply('Failed to fetch new tokens. Please try again.');
   }
 });
 
@@ -216,7 +216,7 @@ bot.command('help', (ctx) => {
     '/broadcast - Broadcast alpha insight to all subscribers\n' +
     '/market - Get top 5 gainers in the last 24h\n' +
     '/smartmoney - Scan for smart money wallets\n' +
-    '/newtokens - Get new tokens on a specific chain and time\n' +
+    '/newtokens - Get new tokens on Solana (optionally specify hours, e.g. /newtokens 12)\n' +
     '/toptraders - Get top traders for a selected token\n' +
     '/help - Show this help message');
 });
