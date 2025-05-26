@@ -9,8 +9,11 @@
     "dev": "node --watch src/index.js"
   },
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "telegraf": "^4.15.3",
-    "openai": "^4.30.0"
+    "body-parser": "^2.2.0",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "node-fetch": "^3.3.2",
+    "openai": "^4.30.0",
+    "telegraf": "^4.15.3"
   }
-} 
+}
